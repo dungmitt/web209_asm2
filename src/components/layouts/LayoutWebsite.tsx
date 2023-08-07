@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { 
     AiTwotoneHome,
     AiOutlineSearch,
@@ -15,9 +15,55 @@ import {
  } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Productlist from "@/pages/Productlist";
-type Props = {};
+import { Dropdown, MenuProps, message } from "antd";
 
-const LayoutWebsite = (props: Props) => {
+const LayoutWebsite = () => {
+  const navigate = useNavigate()
+  const data = localStorage.getItem("user")
+
+  const user = data && JSON.parse(data);
+
+const items: MenuProps['items'] = [
+  {
+      key: '2',
+      label: (
+          <NavLink rel="noopener noreferrer" to="/cart">
+
+              Đơn hàng
+          </NavLink>
+      ),
+      icon: <i className="fa-solid fa-cart-shopping"></i>,
+      disabled: false,
+  },
+  {
+      key: '3',
+      label: (
+          <NavLink target="_blank" to="/admin">
+              Admin
+          </NavLink>
+      ),
+      icon: <i className="fa-solid fa-user-tie"></i>,
+      disabled: user?.role === "Admin" ? false : true,
+  },
+  {
+      key: '4',
+      danger: true,
+      label: (
+          <button onClick={() => {
+              localStorage.clear()
+              message.success("Đăng xuất thành công!");
+              setTimeout(() => {
+                  navigate('/')
+              }, 1000)
+          }}>
+              Logout
+          </button>
+      ),
+      icon: <i className="fa-solid fa-right-from-bracket"></i>,
+  },
+
+]
+  
     return <>
     <div className="container">
             <div className="container bg-slate-400 ">
@@ -27,10 +73,38 @@ const LayoutWebsite = (props: Props) => {
                         <input type="text" className="w-96  hover:bg-slate-100 rounded-l-lg pl-2" placeholder="seach"/>
                         <button className="text-black bg-white text-2xl hover:bg-slate-500 rounded-r-lg"><AiOutlineSearch/></button>
                     </div>
-                    <div className="text-white flex items-center text-xl"><Link to="signup"> <AiTwotoneHome /></Link>
-                    <p className="px-2"><Link to="/cart"> <AiOutlineShoppingCart/></Link></p>
-                    <Link to="/admin"><AiOutlineUser/></Link></div>
+                    <div className="text-white flex items-center text-xl">
                     
+                    </div>
+                    {user ? (
+                    <div className="flex items-center space-x-2 ml-3 md:ml-6">
+                        <Dropdown menu={{ items }}>
+                            <button onClick={(e) => e.preventDefault()}>
+                                <div className="font-medium text-sm flex items-center hover:bg-slate-300 rounded-[10px] p-2">
+                                    <div className="w-8 h-8 flex justify-center rounded-full ring-2 ring-gray-300 dark:ring-gray-500">
+                                        <img className="h-8 w-8 rounded-full" src="https://via.placeholder.com/150" alt="" />
+                                    </div>
+                                    <span className="hidden md:block ml-2">{user.name}</span>
+                                </div>
+                            </button>
+                        </Dropdown>
+                    </div>
+                ) : (
+                    <div className="flex items-center space-x-2 ml-3">
+                        <NavLink to="/signin" className=" text-white rounded-lg py-2 px-4 font-semibold hover:text-red-500 flex items-center space-x-2 text-sm md:text-sm"><i className="fa-solid fa-user"></i>
+                            <span>Đăng nhập</span>
+                        </NavLink>
+                        <NavLink to="/signup" className=" text-white rounded-lg py-2 px-4 font-semibold hover:text-red-500 flex items-center space-x-2 text-sm md:text-sm">
+                            <i className="fa-solid fa-user-plus"></i>
+                            <span>Đăng ký</span>
+                        </NavLink>
+                    </div>
+                )}
+
+                    
+                    {/* {user && user?.role === "Admin" ? "trang admin":""}
+                    {user ? <button onClick={logout}>exit</button> : ""}
+                     */}
                 </header>
             </div>
             <section className="mt-12">

@@ -1,90 +1,85 @@
-import { Button, Checkbox, Form, Input } from 'antd';
-import React from 'react'
-import { AiFillFacebook, AiFillGoogleCircle, AiFillInstagram, AiFillMessage, AiFillTwitterCircle, AiOutlineGlobal, AiOutlineSearch, AiOutlineShoppingCart, AiOutlineUser, AiTwotoneHome } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { createUser } from '@/api/user';
+import { IRegister } from '@/interfaces/user';
+import { Button, Form, Input, Typography, message } from 'antd';
 
-type Props = {}
+import { AiOutlineSearch, AiOutlineShoppingCart, AiOutlineUser, AiTwotoneHome } from 'react-icons/ai';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
-const Signup = (props: Props) => {
-    const onFinish = (values: any) => {
-        console.log('Success:', values);
-    };
 
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
-    };
+const Signup = () => {
+    const navigate = useNavigate()
 
-    type FieldType = {
-        username?: string;
-        password?: string;
-        remember?: string;
+    const onFinish = async (values: IRegister) => {
+        const role = "User"
+        const {confirmPassword, ...newValues} = values
+        const newData = {...newValues, role}
+
+        try {
+            let checkRegister = await createUser(newData);
+            if (checkRegister) {
+                message.success('Đăng ký thành công!');
+                setTimeout(() => {
+                    navigate("/signin");
+                }, 1000);
+            } else {
+                throw new Error('Đăng ký thất bại!');
+            }
+        } catch (error: any) {
+            message.error(error.message);
+        }
     };
     return <>
         <div className="container">
-            <div className="container bg-slate-400 ">
+        <div className="container bg-slate-400 ">
                 <header className="h-16 container w-5/6  flex items-center justify-between px-20 mx-auto">
-                    <Link to="/"><img src="https://coderthemes.com/attex/tailwind/layouts/assets/images/logo.png" className="w-1/3" alt="" /></Link>
+                <Link to="/"><img src="https://coderthemes.com/attex/tailwind/layouts/assets/images/logo.png" className="w-1/3" alt="" /></Link>
                     <div className="flex items-center ">
-                        {/* <input type="text" className="w-96  hover:bg-slate-100 rounded-l-lg pl-2" placeholder="seach" />
-                        <button className="text-black bg-white text-2xl hover:bg-slate-500 rounded-r-lg"><AiOutlineSearch /></button> */}
+                        <input type="text" className="w-96  hover:bg-slate-100 rounded-l-lg pl-2" placeholder="seach"/>
+                        <button className="text-black bg-white text-2xl hover:bg-slate-500 rounded-r-lg"><AiOutlineSearch/></button>
                     </div>
-                    <div className="text-white flex items-center text-xl"> <AiTwotoneHome />
-                        <p className="px-2"><AiOutlineShoppingCart /></p>
-                        <Link to="/admin"><AiOutlineUser/></Link></div>
-
+                    <div className="text-white flex items-center text-xl"><Link to="/signup"> <AiTwotoneHome /></Link>
+                    <p className="px-2"><Link to="/cart"> <AiOutlineShoppingCart/></Link></p>
+                    <Link to="/signin"><AiOutlineUser/></Link></div>
+                    
                 </header>
             </div>
-            <h2 className='text-center font-mono text-2xl mt-5'>Register</h2>
-            <div className='container mt-16'>
-                <Form
-                    name="basic"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    style={{ maxWidth: 600 }}
-                    initialValues={{ remember: true }}
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                    autoComplete="off"
-                    className='mx-auto mb-28'
-                >
-                    <Form.Item<FieldType>
-                        label="Username"
-                        name="username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
+        <main className='flex justify-center items-center h-screen bg-[#f9fafb]'>
+            <Form name="register" onFinish={onFinish} className="login-form w-[500px] p-5 bg-[#ffffff] rounded-lg shadow-2xl" autoComplete='off'>
+                <Typography.Title className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white flex justify-center items-center">
+                    Đăng ký
+                </Typography.Title>
 
-                    <Form.Item<FieldType>
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item<FieldType>
-                        label="Confirmpassword"
-                        name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
+                <Form.Item name="name" rules={[{ required: true, message: 'Vui lòng nhập tên!', whitespace: true }]}>
+                    <Input placeholder="Tên" />
+                </Form.Item>
 
-                    <Form.Item<FieldType>
-                        name="remember"
-                        valuePropName="checked"
-                        wrapperCol={{ offset: 8, span: 16 }}
-                    >
-                        <Checkbox>Remember me</Checkbox>
-                    </Form.Item>
+                <Form.Item name="email" rules={[{ required: true, message: 'Vui lòng nhập tài khoản!' }, { type: 'email', message: 'Vui lòng nhập địa chỉ email hợp lệ!' }]} >
+                    <Input placeholder="Email" />
+                </Form.Item>
 
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" danger htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </div>
+                <Form.Item name="password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' },]}>
+                    <Input.Password placeholder='Mật khẩu' />
+                </Form.Item>
+
+                <Form.Item name="confirmPassword" dependencies={['password']} rules={[{ required: true, message: 'Vui lòng nhập lại mật khẩu!' }, ({ getFieldValue }) => ({ validator(_, value) { if (!value || getFieldValue('password') === value) { return Promise.resolve(); } return Promise.reject(new Error('Hai mật khẩu không khớp!')); }, }),]}>
+                    <Input.Password placeholder='Nhập lại mật khẩu' />
+                </Form.Item>
+
+                {/* <Form.Item name="agreement" valuePropName="checked">
+                    <Checkbox>
+                        Tôi đã đọc <NavLink to="#" className='font-normal text-blue-400 hover:text-red-500'>Thỏa thuận</NavLink>
+                    </Checkbox>
+                </Form.Item> */}
+
+                <Form.Item className='flex justify-center items-center'>
+                    <Button type="primary" ghost htmlType="submit"> Đăng ký </Button>
+                </Form.Item>
+
+                <span className='flex justify-center'>
+                    Bạn đã có tài khoản?<NavLink className='font-normal text-blue-400 hover:text-red-500 ml-1' to="/signin">Đăng nhập!</NavLink>
+                </span>
+            </Form>
+        </main>
            
             <hr className="w-5/6 mx-auto" />
             <footer className='container  bg-slate-100 h-auto pt-10'>

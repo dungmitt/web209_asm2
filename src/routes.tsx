@@ -14,27 +14,34 @@ import Listcart from "./pages/user/cart";
 import Productlist from "./pages/Productlist";
 import { useAppSelector } from "./store/hook";
 
+const data = localStorage.getItem("user")
+
+const user = data && JSON.parse(data);
+
+
 export const routers = createBrowserRouter([
-    { path: "/",
-    element: <LayoutWebsite />,
-    children: [
-        { index: true, element: <Navigate to="homepage" /> },
-        { path: "homepage", element: <About /> },
-        { path: "product", element: <Homepage/> },
-    ], },
+    {
+        path: "/",
+        element: <LayoutWebsite />,
+        children: [
+            { index: true, element: <Navigate to="homepage" /> },
+            { path: "homepage", element: <About /> },
+            { path: "product", element: <Homepage /> },
+        ],
+    },
     {
         path: "/admin",
-        element: <LayoutAdmin />,
+        element: user?.role === "Admin" ? <LayoutAdmin /> : "khong co quyen",
         children: [
             { index: true, element: <Navigate to="dashboard" /> },
-            { path: "dashboard", element: <Static/> },
+            { path: "dashboard", element: <Static /> },
             { path: "product", element: <AdminProduct /> },
             { path: "product/add", element: <AdminProductAdd /> },
             { path: "product/:idProduct/edit", element: <AdminProductEdit /> },
         ],
     },
-    { path: "/signup", element: <Signup />,},
-    { path: "/signin", element: <Signin />,},
-    { path: "/cart", element: <Listcart />,},
-    { path: "/detail/:id", element: <Productlist/>,},
+    { path: "/signup", element: <Signup />, },
+    { path: "/signin", element: <Signin />, },
+    { path: "/cart", element: <Listcart />, },
+    { path: "/detail/:id", element: <Productlist />, },
 ]);
